@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Sample Project</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+    <style>
+        input {
+            padding: 1%;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container" id="container" style="margin: 1%; padding: 1%; justify-content: center;">
+    <center>
+        <h1>Registration Form</h1>
+    </center>
+    
+        <form action="" method="post">
+            <table border="0" align="center">
+                <tbody>
+                    <tr>
+                        <td><label for="name">Full Name: </label></td>
+                        <td><input id="name" maxlength="50" name="name" type="text" placeholder="Enter your Name..."/></td>
+                    </tr>
+                   
+                    <tr>
+                        <td><label for="email">Email Address:</label></td>
+                        <td><input id="email" maxlength="50" name="email" type="text" placeholder="Enter your Email..."/></td>
+                    </tr>
+                    <tr>
+                        <td><label for="mobile">Mobile Number:</label></td>
+                        <td><input id="mobile" maxlength="10" name="mobile" type="number" placeholder="Enter your Mobile Number..."/></td>
+                    </tr>
+                    <!-- <br> -->
+                    <tr>
+                        <td><label for="password">Password:</label></td>
+                        <td><input id="password" maxlength="50" name="password" type="password" placeholder="Enter your Password..."/></td>
+                    </tr>
+                    <tr>
+
+                    </tr>
+                    <tr>
+                        <td align="right"><input type="button" value="Register" onclick="registerCandidate();" /></td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <script>
+        function createPUTRequest(connToken, jsonObj, dbName, relName) {
+            var putRequest = "{\n"
+                + "\"token\" : \""
+                + connToken
+                + "\","
+                + "\"dbName\": \""
+                + dbName
+                + "\",\n" + "\"cmd\" : \"PUT\",\n"
+                + "\"rel\" : \""
+                + relName + "\","
+                + "\"jsonStr\": \n"
+                + jsonObj
+                + "\n"
+                + "}";
+            return putRequest;
+        }
+        function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+            var url = dbBaseUrl + apiEndPointUrl;
+            var jsonObj;
+            $.post(url, reqString, function (result) {
+                jsonObj = JSON.parse(result);
+            }).fail(function (result) {
+                var dataJsonObj = result.responseText;
+                jsonObj = JSON.parse(dataJsonObj);
+            });
+            return jsonObj;
+        }
+
+        function validateAndGetFormData() {
+
+            var name = document.getElementById("name").value;
+            // var course = document.getElementById("course").value;
+            // var branch = document.getElementById("branch").value;
+            var number = document.getElementById("mobile").value;
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+
+            if (name == "") {
+                alert('Enter your name \nAll details are required to fill... ');
+                document.getElementById("name").focus();
+                return "";
+            }
+            else if (email == "") {
+                alert('Enter your email \nAll details are required to fill... ');
+                document.getElementById("email").focus();
+                return "";
+            }
+            else if (number == "") {
+                alert('Enter your number \nAll details are required to fill... ');
+                document.getElementById("mobile").focus();
+                return "";
+            }
+            else if (password == "") {
+                alert('Enter your password \nAll details are required to fill... ');
+                document.getElementById("password").focus();
+                return "";
+            }
+
+
+            var jsonStrObj = {
+                CandidateName: name,
+                // Course: course,
+                // Branch: branch,
+                MobileNumber: number,
+                Email: email,
+                Password: password,
+            };
+            return JSON.stringify(jsonStrObj);
+        }
+        function resetForm() {
+            // alert('Form is being RESET Successfully');
+           location.reload();
+            document.getElementById("name").focus();
+        }
+        function registerCandidate() {
+            //validating Form
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === "") {
+                return;
+            }
+            //Putting request to Database
+            var putReqStr = createPUTRequest("90937385|-31949292295883097|90943352",
+                jsonStr, "SampleRegistration", "UserInfo");
+            alert(putReqStr);
+            jQuery.ajaxSetup({ async: false });
+            //Executing Query to Database
+            var resultObj = executeCommand(putReqStr,
+                "http://api.login2explore.com:5577", "/api/iml");
+            jQuery.ajaxSetup({ async: true });
+            alert("INSERTED Successfully" + JSON.stringify(resultObj));
+
+            resetForm();
+        }
+    </script>
+</body>
+
+</html>
